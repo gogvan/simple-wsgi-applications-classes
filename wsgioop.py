@@ -81,37 +81,32 @@ class In_Data(Out_Data):
         
         doc.close()
         
-    def _get_query(self, query_string = {}):
-        query_dict = parse_qs(query_string)
-        name_action = query_dict.get('name_action', [''])[0]
-        page = self._check_int(query_dict.get('page', [0])[0])
-        search_text = query_dict.get('search_text', [''])[0]
-        if name_action in self.__array_name_action:
-            if name_action == 'get_environ':
-                for key, value in environ.items():
-                    self._set_data(key, value)
-            else:
-                self._open_doc(name_action, page, search_text)
-        else:
-            self._set_data('error', 'Ошибка, переменная name_action не определена')
-    
     def get_input(self, environ = {}):
         #sleep(.1)
+        query_string = ''
         method = environ.get('REQUEST_METHOD', '').lower()
         if method in self.__array_name_method:
             if method == 'get':
                 query_string = environ.get('QUERY_STRING', '')
-                if query_string != '':
-                    self._get_query(query_string)
-                else:
-                    self._set_data('error', 'Ошибка, нет данных GET')
             elif method == 'post':
                 request_post_size = int(environ.get('CONTENT_LENGTH', 0))
                 if request_data_size > 0:
                     query_string = environ['wsgi.input'].read(request_post_size).decode('utf-8')
-                    self._get_query(query_string)
+            if query_string != '':
+                query_dict = parse_qs(query_string)
+                name_action = query_dict.get('name_action', [''])[0]
+                if name_action in self.__array_name_action:
+                    if name_action == 'get_environ':
+                        for key, value in environ.items():
+                            self._set_data(key, value)
+                    else:
+                        page = self._check_int(query_dict.get('page', ['0'])[0])
+                        search_text = query_dict.get('search_text', [''])[0]
+                        self._open_doc(name_action, page, search_text)
                 else:
-                    self._set_data('error', 'Ошибка, нет данных POST')
+                    self._set_data('error', 'Ошибка, переменная name_action не определена')
+            else:
+                self._set_data('error', f'Ошибка, нет данных {method.upper()}!')
         else:
             self._set_data('error', f'Ошибка, {method.upper()}!')
 
