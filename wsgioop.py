@@ -60,7 +60,6 @@ class In_Data(Out_Data):
         return page
     
     def _open_doc(self, name_action, num_page = 0, search_text = ''):
-        
         doc = pymupdf.open('book.pdf')
         page_count = doc.page_count
         self._set_data('page_count', page_count)
