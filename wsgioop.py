@@ -29,8 +29,8 @@ class Out_Data():
             self.__data[key] = [value]
         
 class In_Data(Out_Data):
-    __array_name_action = ['get_pic', 'get_text', 'get_environ']
-    __array_name_method = ['get', 'post']
+    __array_name_action = ('get_pic', 'get_text', 'get_environ')
+    __array_name_method = ('get', 'post')
     
     def _check_int(self, num) -> int:
         num = re_sub(r'[^0-9]', '', num)
